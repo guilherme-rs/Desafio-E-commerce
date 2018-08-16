@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Tarefa;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\DB;
@@ -16,8 +17,6 @@ class TarefasController extends Controller {
     public function index(){
         $tarefas = Tarefa::orderBy('ordem', 'asc')->get();
         return view('tarefas.index',['tarefas' => $tarefas]);
-		
-		
     }
 
     /**
@@ -36,20 +35,28 @@ class TarefasController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-		$nome = Tarefa::where('nome_tarefa', Input::get('nome_tarefa'))->get();
-		
-		if(count($nome) > 0){			
-			return view('tarefas.create', ['error' => 'Tarefa já existente']);
-		}
-		
 		$ultima_ordem = DB::table('tarefas')->latest()->first();
 		
         $tarefa = new Tarefa();
         $tarefa->nome_tarefa = Input::get('nome_tarefa');
         $tarefa->custos = Input::get('custo');
         $tarefa->data_limite = Input::get('dt_limite');
-        $tarefa->ordem = ($ultima_ordem -> ordem)+1;
-        $tarefa->save();
+
+        if($ultima_ordem === null){
+            $tarefa->ordem = 1;
+        }else{
+            $tarefa->ordem = ($ultima_ordem -> ordem)+1;
+        }
+
+        try{
+            $tarefa->save();
+        }catch (QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if($errorCode == 1062){
+                return view('tarefas.create', ['error' => 'Tarefa já existente']);
+            }
+        }
+
         return redirect()->route('tarefas.index');
     }
 
@@ -88,17 +95,25 @@ class TarefasController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id) {
-        $nome = Tarefa::where('nome_tarefa', Input::get('nome_tarefa'))->get();
-		
-		if(count($nome) > 0){			
-			return view('tarefas.create', ['error' => 'Tarefa já existente']);
-		}
-		
         $tarefa = Tarefa::find($id);
         $tarefa->nome_tarefa = Input::get('nome_tarefa');
         $tarefa->custos = Input::get('custo');
         $tarefa->data_limite = Input::get('dt_limite');
-        $tarefa->save();
+
+        try{
+            $tarefa->save();
+        }catch (QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if($errorCode == 1062){
+                return view('tarefas.edit', [
+                    'error' => 'Tarefa já existente',
+                    'id' => $tarefa->id,
+                    'nome_tarefa' => $tarefa->nome_tarefa,
+                    'custos' => $tarefa->custos,
+                    'dt_limite' => $tarefa->data_limite
+                ]);
+            }
+        }
         return redirect()->route('tarefas.index');
     }
 
@@ -116,4 +131,10 @@ class TarefasController extends Controller {
 		
         //return redirect()->route('tarefas.index');
     }
+	
+	public function reorder(){
+		return response()->view('tarefas.index')->setStatusCode(200);
+				
+		//return DB::table('tarefas')->where('id', '=', $itemId)->update('ordem' => $ordem);
+	}
 }

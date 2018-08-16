@@ -1,7 +1,7 @@
 @extends('layouts.welcome')
 @section('titulo', 'Pagina de Tarefas')
 @section('conteudo')
-    <h1> Tarefas </h1>    
+    <h1> Tarefas </h1>      
     <table class="table table-hover">
         <thead>
             <th> ID </th>
@@ -10,7 +10,7 @@
             <th> Data Limite </th>
             <th> Opções </th>
         </thead>
-        <tbody>
+        <tbody id="tablebody">
             @forelse($tarefas as $item)
                 @if($item -> custos >= 1000)
                     <tr style="background-color: yellow">
@@ -38,7 +38,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="3"> Nenhum cliente cadastrado. </td>
+                    <td colspan="5" align="center"> Nenhuma tarefa cadastrada. </td>
                 </tr>
             @endforelse
         </tbody>
@@ -46,4 +46,11 @@
 	<a href="{{ route('tarefas.create') }}" class="btn btn-secondary">
         <span class="glyphicon glyphicon-plus"><strong> Adicionar </strong></span>
     </a>
+	<script>
+		$("#tablebody").sortable({
+			items: "tr",
+			cursor: 'move',
+			opacity: 0.6			
+		});
+	</script>
 @endsection

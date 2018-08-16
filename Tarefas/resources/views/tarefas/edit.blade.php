@@ -19,7 +19,7 @@
                 </div>
                 <div class="form-group">
                     <label for="custo">Custo: </label>
-                    <input type="number" class="form-control" id="custo" name="custo" value="{{ $custos }}">
+                    <input type="number" step="any" min="1" class="form-control" id="custo" name="custo" value="{{ $custos }}">
                 </div>
                 <div class="form-group">
                     <label for="dt_limite">Data Limite: </label>

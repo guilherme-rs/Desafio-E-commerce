@@ -18,7 +18,7 @@
                 </div>
                 <div class="form-group">
                     <label for="custo">Custo: </label>
-                    <input type="number" class="form-control" id="custo" name="custo">
+                    <input type="number" step="any"  min="1" class="form-control" id="custo" name="custo">
                 </div>
                 <div class="form-group">
                     <label for="dt_limite">Data Limite: </label>

@@ -17,3 +17,5 @@ Route::get('/', function () {
 });
 
 Route::resource('tarefas', 'TarefasController');
+// Rota para salvar a reordenação da lista
+Route::post('/tarefas', 'TarefasController@reorder')->name('tarefas.reordenar');
